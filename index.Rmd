@@ -1,0 +1,268 @@
+---
+title       : 36-721 Homework 1
+subtitle    : Due Thursday, September 5, 2013
+author      : Philipp Burckhardt
+job         : 
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : [bootstrap]            # {mathjax, quiz, bootstrap}
+mode        : selfcontained  # {standalone, draft}
+ext_widgets: {rCharts: ["libraries/highcharts", "libraries/nvd3"]}
+---
+
+## Introduction
+
+This R Markdown file uses the *slidify* package by Ramnath Vaidyanathan which is not on CRAN yet and has to be manually installed. I make also use of the interactive plotting capabilities provided by the *rCharts* package. Since these packages are still in rapid development and this feature was added only recently, the current development versions have to be installed  from Github. Luckily, this is as easy as typing three lines of R code, using the *devtools* package by Hadley Wickham:
+```{r,eval=FALSE}
+require(devtools)
+install_github(c('slidify', 'slidifyLibraries'), 'ramnathv', ref = 'dev')
+install_github('rCharts', 'ramnathv')
+```
+
+The knitted presentation in HTML format can also be accessed under the following address:
+[Click me to open it in Brower](http://dl.dropboxusercontent.com/u/8439596/presentation/index.html).
+To rebuild this R markdown document, it is also important to replace the *slidify.css* document in the folder ~/assets/css/slidify.css with the following custom file: 
+[Download](http://dl.dropboxusercontent.com/u/8439596/presentation/assets/css/slidify.css) [Notice: the folder will be created after invoking knit("index.Rmd") for the first time]
+
+---
+
+## Load Required Packages
+
+```{r,message=FALSE}
+require(knitr)
+require(slidify)
+require(rCharts)
+require(xtable)
+require(gridExtra)
+require(ggplot2)
+theme_set(new=theme_gray(base_size=14))
+require(lattice)
+```
+
+--- bg:#EEE
+## Question 1: `survey` Data Set 
+
+For the first question, we analyze a survey of 237 students at the University of Adelaide. All subsequently analyzed data sets come with the MASS package which can be loaded as follows:
+
+```{r,message=FALSE}
+require(MASS)
+data(survey)
+```
+The first four observations are displayed in the following table:
+```{r results='asis',message=FALSE}
+df <- head(survey,n=4)
+print(xtable(df),type="html")
+```
+
+--- 
+## Smoking Behaviour of Students
+
+```{r fig.width=10, fig.height=5,fig.align='center'}
+par(mfrow=c(1,2));
+plot(survey$Smoke,ylab="count"); title("Barplot without Reordering");
+survey$Smoke <- factor(survey$Smoke,levels=c("Never","Occas","Regul","Heavy"))
+plot(survey$Smoke,ylab="count"); title("Barplot with Reordering");
+```
+--- .class #id 
+
+## How often do the Students exercise?
+
+```{r,fig.width=8,fig.height=4,fig.align='center'}
+exer.tab <- xtabs(~survey$Exer)
+par(mfrow=c(1,2))
+barplot(rep(1,length(exer.tab)), exer.tab, space=0,
+        names.arg=names(exer.tab),
+        col=c("lightblue", "mistyrose", "lavender"))
+title(main="Spine Chart without Reordering",
+      xlab="Exercise Level",
+      ylab="Count")
+
+barplot(rep(1,length(exer.tab)), exer.tab[c(2,3,1)], space=0,
+        names.arg=names(exer.tab[c(2,3,1)]),
+        col=c("mistyrose", "lavender","lightblue"))
+title(main="Spine Chart with Reordering",
+      xlab="Exercise Level",
+      ylab="Count")
+
+```
+
+---
+
+## Interpretation 
+
+Concerning the amount of time each student devotes to exercising, the spine charts reveal that there is only a minority of students who do not do any sports at all, with two other almost equally sized groups who practice either sometimes or frequently. However, with only three data points to display, the same information could also be conveyed by the use of a simple table.  Of the two plots, it is advisable to go with the ordered one, as the exercise level is an ordinal variable and should be treated as such. If one does not take the inherent ordering into account, this will likely lead to misunderstandings the viewer will not notice unless he carefully looks at the labels. 
+
+Similarly, the bar plots on Page 4 show that the overwhelming majority of students does not smoke at all, with less than a quarter of students smoking either occasionally, regularly or heavily. In each of these sub-categories, there are fewer and fewer cases  
+with increasing smoking level. It is again advisable to use the ordered chart, as the initial ordering is arbitrary, while there is an inherent ordering of the categories which should be reflected. 
+
+---
+## Interactive Highcharts.js Plot
+```{r results='asis',echo=FALSE,fig.align='center',cache=FALSE}
+df <- as.data.frame(matrix(c(18, 3, 1, 1, 84, 4, 7, 3, 87, 12, 9, 7
+),ncol=4,nrow=3,byrow=TRUE)) 
+colnames(df) <-c("No Smoking", "Occasional Smoking", "Regular Smoking", "Heavy Smoking")
+rownames(df) <-  c("None", "Some","Freq")
+
+a <- rCharts:::Highcharts$new()
+a$chart(type = "column")
+a$title(text = "Exercise / Smoking")
+a$plotOptions(column = list(stacking = "normal"))
+a$xAxis(title ="Exercising", categories = c("No Exercising","Some Exercising","Frequent Exercising"))
+a$data(df);
+a$print('hchart1',include_assets = TRUE,cdn = TRUE)
+```
+
+As can be seen, there does not seem to be any significant relationship between the two categorical variables.
+
+---
+## Code for previous plot
+
+```{r results='asis',echo=TRUE,eval=FALSE,cache=FALSE,fig.align='center'}
+df <- as.data.frame(matrix(c(87, 12, 9, 7, 18, 3, 1, 1, 84, 4, 7, 3
+),ncol=4,nrow=3)) 
+colnames(df) <-c("No Smoking", "Occasional Smoking", "Regular Smoking", "Heavy Smoking")
+rownames(df) <-  c("Freq", "None", "Some")
+
+a <- rCharts:::Highcharts$new()
+a$chart(type = "column")
+a$title(text = "Exercise / Smoking")
+a$plotOptions(column = list(stacking = "normal"))
+a$xAxis(categories = c("No Exercising", "Some Exercising","Frequent Exercising"))
+a$data(df);
+a$print('hchart1',include_assets = TRUE,cdn = TRUE)
+```
+
+--- bg:#EEE
+  
+## Question 2: `birthwt` Data Set##
+  
+In this part of the presentation, we study the *birthwt* data set which also comes with MASS. It comprises 189 observations of 10 different variables, with the goal to discover risk factors associated with low infant birth weight (see the help page of the data set by typing `?birthwt` in the console). 
+
+We limit our attention to the following three variables:
+
+   - race: race of the mother, one of white, black or other
+   - smoke: smoking status during pregnancy
+   - ptl: number of previous premature labours
+  
+
+---
+
+## Empirical Distributions
+
+Displayed are bar plots for the univariate distributions of the three considered variables. 
+```{r, message=FALSE,fig.align='center',fig.height=4,fig.width=9,f,echo=FALSE,dev="svg",cache=FALSE}
+data(birthwt)
+birthwt$smoke <- factor(birthwt$smoke,labels=c("No","Yes"))
+p1 <- ggplot(birthwt,aes(x=smoke))+geom_bar(fill="steelblue")+labs(x="Smoking during pregnancy?")
+birthwt$race <- factor(birthwt$race, labels = c("white", "black", "other"))
+p2 <- ggplot(birthwt,aes(x=race))+geom_histogram(fill="steelblue")+labs(x="Race")
+p3 <- ggplot(birthwt,aes(x=as.factor(ptl)))+geom_bar(fill="steelblue")+stat_bin(aes(label=..count..), vjust=-1, geom="text", position="identity",colour="black")+ylim(0,180)+labs(x="# Previous Premature Labours")
+grid.arrange(p1,p2,p3,nrow=1)
+```
+
+---
+## Mosaic Plots to Display Contingency Tables
+```{r,fig.align='center',fig.height=3,fig.width=9,dev='svg',cache=FALSE}
+par(mfrow=c(1,3))
+cortable1 <- table(birthwt[,c("smoke","race")])
+mosaicplot (cortable1,cex.axis=1.5,main="Smoke / Race")
+cortable2 <- table(birthwt[,c("ptl","race")])
+mosaicplot (cortable2,cex.axis=1.5,main="Ptl / Race")
+cortable3 <- table(birthwt[,c("ptl","smoke")])
+mosaicplot (cortable3,cex.axis=1.5,main="Ptl / Smoke")
+```
+
+--- &twocol
+
+## Results: Smoke and Race ##
+
+*** =left
+
+```{r,echo=FALSE}
+mosaicplot (cortable1,cex.axis=1.5,main="Smoke / Race")
+```
+
+*** =right
+
+From the first plot, one can deduce that the proportion of people who smoked during pregnancy is much larger among white people than the two other groups. For people with black skin, the situation is not as clear-cut, with roughly 40% of the group smoking during pregnancy. However, mothers from the category comprising all other races smoke much less during pregnancy, with more than three quarters refraining from doing so. A Chi-squared test rejects the null hypothesis of independence (p-value: `r with(birthwt, round(chisq.test(race,smoke)$p.value,4))`), affirming that this association is not a result of pure chance. 
+
+--- &twocol
+
+## Results: Smoke and # Premature Labours 
+
+*** =left
+
+```{r,echo=FALSE}
+mosaicplot (cortable3,cex.axis=1.5,main="Ptl / Smoke")
+```
+
+
+*** =right
+
+While there does not appear to be any association between race and the number of premature labours, a look at the mosaic-plot on the left suggests that there is an association between smoking behaviour and premature labours. Mothers who smoke during pregnancy had more premature labours in the past, an observation which is in line with current research suggesting that smoking during pregnancy increased the risk of a premature birth. 
+
+--- bg:#EEE
+  
+## Question 3: `minn38` Data Set##
+
+Finally, we look at the `minn38` data set, which contains characteristics about high school graduates of 1938 from Minnesota (type `?help(minn38)` in R). 
+
+```{r}
+data(minn38)
+minn38.tab <- xtabs(formula=f~phs+fol+sex,minn38)
+minn38.tab.M <-  xtabs(formula=f~phs+fol,minn38[minn38$sex=="M",])
+minn38.tab.F <-  xtabs(formula=f~phs+fol,minn38[minn38$sex=="F",])
+```
+
+Code for plots on the next pages:
+```{r}
+df1 <- as.data.frame(minn38.tab.F)
+n1 <- nPlot(Freq~phs,group="fol",type='multiBarChart',data=df1)
+#n1$set(width=800,height=500)
+df2 <- as.data.frame(minn38.tab.M)
+n2 <- nPlot(Freq~phs,group="fol",type='multiBarChart',data=df2)
+#n2$set(width=800,height=500)
+```
+
+
+--- 
+## Female High School Graduates 
+Interactive Bar Chart:
+```{r results='asis',echo=FALSE}
+n1$set(width = 800, height = 400)
+n1$print('nchart1')
+```
+
+---
+## Male High School Graduates##
+Interactive Bar Chart:
+```{r results='asis',echo=FALSE}
+n2$set(width = 800, height = 400)
+n2$print('nchart2')
+```
+
+---
+## Results ##
+
+One interesting and perhaps surprising result concerning the relationship between gender and post high school status is that women were more than twice as likely employed full-time than their male counterparts. Comparing the two plots from the previous pages, one can see that the bars differ indeed greatly in height: Roughly three times as many females compared to males were employed full-time (keep in mind that the two plots have a different scale on the y-scale).
+
+Second, college enrolment is highest for pupils from a household in which the father's occupational level is "F1". Compared to all other categories of occupational level, this is the only group in which children who go on to enrol in college make up the largest group. To see this, it is advisable to deselect all other groups in the interactive plots and then make one-to-one comparisons between the individual groups.  
+
+--- 
+## Non-interactive percentage Barplot using Lattice
+
+```{r results='asis',echo=TRUE,message=FALSE,fig.align='center',fig.height=4,fig.width=10,dev='svg'}
+minn38_prop_tab <- prop.table(minn38.tab,margin=c(2,3)) 
+barchart(Freq~fol|sex,groups=phs,data=as.data.frame(minn38_prop_tab),stack=TRUE,xlab="Post High School Status",ylab="Percentage",auto.key=list(space="right", columns=1, title="Legend", cex.title=1))
+```
+
+---
+
+## Results 2
+
+To render visible the distribution in the individual groups, the previous bar chart only displays the proportions inside the respective groups and not the total counts. This allows better insight into the composition of the groups. One last observation is that there seems to be a trend that with increasing occupational level the number of graduates enrolled in college diminishes, which is offset by an increase in graduates of the category "other". The proportion of graduates belonging to the other categories (full-time employment and non-collegiate school) does not vary as much. One blatant exception is given by category "F3", in which less than under this hypothesis expected 
+graduates are college students. 
+  
+---
+

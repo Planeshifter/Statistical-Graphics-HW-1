@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>36-721 Homework 1</title>
+  <meta charset="utf-8">
+  <meta name="description" content="36-721 Homework 1">
+  <meta name="author" content="Philipp Burckhardt">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="libraries/widgets/bootstrap/css/bootstrap.css"></link>
+<link rel=stylesheet href="libraries/widgets/nvd3/css/nv.d3.css"></link>
+<link rel=stylesheet href="libraries/widgets/nvd3/css/rNVD3.css"></link>
+<link rel=stylesheet href="./assets/css/ribbons.css"></link>
+<link rel=stylesheet href="./assets/css/slidify.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  <script src="libraries/widgets/highcharts/js/jquery-1.9.1.min.js"></script>
+<script src="libraries/widgets/highcharts/js/highcharts.js"></script>
+<script src="libraries/widgets/highcharts/js/highcharts-more.js"></script>
+<script src="libraries/widgets/nvd3/js/jquery-1.8.2.min.js"></script>
+<script src="libraries/widgets/nvd3/js/d3.v3.min.js"></script>
+<script src="libraries/widgets/nvd3/js/nv.d3.min-new.js"></script>
+<script src="libraries/widgets/nvd3/js/fisheye.js"></script>
+
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>36-721 Homework 1</h1>
+    <h2>Due Thursday, September 5, 2013</h2>
+    <p>Philipp Burckhardt<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Introduction</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>This R Markdown file uses the <em>slidify</em> package by Ramnath Vaidyanathan which is not on CRAN yet and has to be manually installed. I make also use of the interactive plotting capabilities provided by the <em>rCharts</em> package. Since these packages are still in rapid development and this feature was added only recently, the current development versions have to be installed  from Github. Luckily, this is as easy as typing three lines of R code, using the <em>devtools</em> package by Hadley Wickham:</p>
+
+<pre><code class="r">require(devtools)
+install_github(c(&quot;slidify&quot;, &quot;slidifyLibraries&quot;), &quot;ramnathv&quot;, ref = &quot;dev&quot;)
+install_github(&quot;rCharts&quot;, &quot;ramnathv&quot;)
+</code></pre>
+
+<p>The knitted presentation in HTML format can also be accessed under the following address:
+<a href="http://dl.dropboxusercontent.com/u/8439596/presentation/index.html">Click me to open it in Brower</a>.
+To rebuild this R markdown document, it is also important to replace the <em>slidify.css</em> document in the folder ~/assets/css/slidify.css with the following custom file: 
+<a href="http://dl.dropboxusercontent.com/u/8439596/presentation/assets/css/slidify.css">Download</a> [Notice: the folder will be created after invoking knit(&quot;index.Rmd&quot;) for the first time]</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Load Required Packages</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">require(knitr)
+require(slidify)
+require(rCharts)
+require(xtable)
+require(gridExtra)
+require(ggplot2)
+theme_set(new = theme_gray(base_size = 14))
+require(lattice)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:#EEE;">
+  <hgroup>
+    <h2>Question 1: <code>survey</code> Data Set</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>For the first question, we analyze a survey of 237 students at the University of Adelaide. All subsequently analyzed data sets come with the MASS package which can be loaded as follows:</p>
+
+<pre><code class="r">require(MASS)
+data(survey)
+</code></pre>
+
+<p>The first four observations are displayed in the following table:</p>
+
+<pre><code class="r">df &lt;- head(survey, n = 4)
+print(xtable(df), type = &quot;html&quot;)
+</code></pre>
+
+<!-- html table generated in R 3.0.1 by xtable 1.7-1 package -->
+
+<!-- Sun Sep 01 00:24:13 2013 -->
+
+<TABLE border=1>
+<TR> <TH>  </TH> <TH> Sex </TH> <TH> Wr.Hnd </TH> <TH> NW.Hnd </TH> <TH> W.Hnd </TH> <TH> Fold </TH> <TH> Pulse </TH> <TH> Clap </TH> <TH> Exer </TH> <TH> Smoke </TH> <TH> Height </TH> <TH> M.I </TH> <TH> Age </TH>  </TR>
+  <TR> <TD align="right"> 1 </TD> <TD> Female </TD> <TD align="right"> 18.50 </TD> <TD align="right"> 18.00 </TD> <TD> Right </TD> <TD> R on L </TD> <TD align="right">  92 </TD> <TD> Left </TD> <TD> Some </TD> <TD> Never </TD> <TD align="right"> 173.00 </TD> <TD> Metric </TD> <TD align="right"> 18.25 </TD> </TR>
+  <TR> <TD align="right"> 2 </TD> <TD> Male </TD> <TD align="right"> 19.50 </TD> <TD align="right"> 20.50 </TD> <TD> Left </TD> <TD> R on L </TD> <TD align="right"> 104 </TD> <TD> Left </TD> <TD> None </TD> <TD> Regul </TD> <TD align="right"> 177.80 </TD> <TD> Imperial </TD> <TD align="right"> 17.58 </TD> </TR>
+  <TR> <TD align="right"> 3 </TD> <TD> Male </TD> <TD align="right"> 18.00 </TD> <TD align="right"> 13.30 </TD> <TD> Right </TD> <TD> L on R </TD> <TD align="right">  87 </TD> <TD> Neither </TD> <TD> None </TD> <TD> Occas </TD> <TD align="right">  </TD> <TD>  </TD> <TD align="right"> 16.92 </TD> </TR>
+  <TR> <TD align="right"> 4 </TD> <TD> Male </TD> <TD align="right"> 18.80 </TD> <TD align="right"> 18.90 </TD> <TD> Right </TD> <TD> R on L </TD> <TD align="right">  </TD> <TD> Neither </TD> <TD> None </TD> <TD> Never </TD> <TD align="right"> 160.00 </TD> <TD> Metric </TD> <TD align="right"> 20.33 </TD> </TR>
+   </TABLE>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Smoking Behaviour of Students</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">par(mfrow = c(1, 2))
+plot(survey$Smoke, ylab = &quot;count&quot;)
+title(&quot;Barplot without Reordering&quot;)
+survey$Smoke &lt;- factor(survey$Smoke, levels = c(&quot;Never&quot;, &quot;Occas&quot;, &quot;Regul&quot;, &quot;Heavy&quot;))
+plot(survey$Smoke, ylab = &quot;count&quot;)
+title(&quot;Barplot with Reordering&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-5.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>How often do the Students exercise?</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">exer.tab &lt;- xtabs(~survey$Exer)
+par(mfrow = c(1, 2))
+barplot(rep(1, length(exer.tab)), exer.tab, space = 0, names.arg = names(exer.tab), 
+    col = c(&quot;lightblue&quot;, &quot;mistyrose&quot;, &quot;lavender&quot;))
+title(main = &quot;Spine Chart without Reordering&quot;, xlab = &quot;Exercise Level&quot;, ylab = &quot;Count&quot;)
+
+barplot(rep(1, length(exer.tab)), exer.tab[c(2, 3, 1)], space = 0, names.arg = names(exer.tab[c(2, 
+    3, 1)]), col = c(&quot;mistyrose&quot;, &quot;lavender&quot;, &quot;lightblue&quot;))
+title(main = &quot;Spine Chart with Reordering&quot;, xlab = &quot;Exercise Level&quot;, ylab = &quot;Count&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-6.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>Interpretation</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Concerning the amount of time each student devotes to exercising, the spine charts reveal that there is only a minority of students who do not do any sports at all, with two other almost equally sized groups who practice either sometimes or frequently. However, with only three data points to display, the same information could also be conveyed by the use of a simple table.  Of the two plots, it is advisable to go with the ordered one, as the exercise level is an ordinal variable and should be treated as such. If one does not take the inherent ordering into account, this will likely lead to misunderstandings the viewer will not notice unless he carefully looks at the labels. </p>
+
+<p>Similarly, the bar plots on Page 4 show that the overwhelming majority of students does not smoke at all, with less than a quarter of students smoking either occasionally, regularly or heavily. In each of these sub-categories, there are fewer and fewer cases<br>
+with increasing smoking level. It is again advisable to use the ordered chart, as the initial ordering is arbitrary, while there is an inherent ordering of the categories which should be reflected. </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>Interactive Highcharts.js Plot</h2>
+  </hgroup>
+  <article data-timings="">
+    <script type='text/javascript' src=http://code.jquery.com/jquery-1.9.1.min.js></script>
+
+<script type='text/javascript' src=http://code.highcharts.com/highcharts.js></script>
+
+<script type='text/javascript' src=http://code.highcharts.com/highcharts-more.js></script>
+
+<div id='hchart1' class='rChart highcharts'></div>
+
+<script type='text/javascript'>
+    (function($){
+        $(function () {
+            var chart = new Highcharts.Chart({
+ "dom": "hchart1",
+"width":    800,
+"height":    400,
+"credits": {
+ "href": null,
+"text": null 
+},
+"title": {
+ "text": "Exercise / Smoking" 
+},
+"yAxis": {
+ "title": {
+ "text": null 
+} 
+},
+"chart": {
+ "type": "column",
+"renderTo": "hchart1" 
+},
+"plotOptions": {
+ "column": {
+ "stacking": "normal" 
+} 
+},
+"xAxis": {
+ "title": "Exercising",
+"categories": [ "No Exercising", "Some Exercising", "Frequent Exercising" ] 
+},
+"series": [
+ {
+ "name": "No Smoking",
+"data": [     18,     84,     87 ] 
+},
+{
+ "name": "Occasional Smoking",
+"data": [      3,      4,     12 ] 
+},
+{
+ "name": "Regular Smoking",
+"data": [      1,      7,      9 ] 
+},
+{
+ "name": "Heavy Smoking",
+"data": [      1,      3,      7 ] 
+} 
+],
+"id": "hchart1" 
+});
+        });
+    })(jQuery);
+</script>
+
+<p>As can be seen, there does not seem to be any significant relationship between the two categorical variables.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h2>Code for previous plot</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">df &lt;- as.data.frame(matrix(c(87, 12, 9, 7, 18, 3, 1, 1, 84, 4, 7, 3), ncol = 4, 
+    nrow = 3))
+colnames(df) &lt;- c(&quot;No Smoking&quot;, &quot;Occasional Smoking&quot;, &quot;Regular Smoking&quot;, &quot;Heavy Smoking&quot;)
+rownames(df) &lt;- c(&quot;Freq&quot;, &quot;None&quot;, &quot;Some&quot;)
+
+a &lt;- rCharts:::Highcharts$new()
+a$chart(type = &quot;column&quot;)
+a$title(text = &quot;Exercise / Smoking&quot;)
+a$plotOptions(column = list(stacking = &quot;normal&quot;))
+a$xAxis(categories = c(&quot;No Exercising&quot;, &quot;Some Exercising&quot;, &quot;Frequent Exercising&quot;))
+a$data(df)
+a$print(&quot;hchart1&quot;, include_assets = TRUE, cdn = TRUE)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-9" style="background:#EEE;">
+  <hgroup>
+    <h2>Question 2: <code>birthwt</code> Data Set</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>In this part of the presentation, we study the <em>birthwt</em> data set which also comes with MASS. It comprises 189 observations of 10 different variables, with the goal to discover risk factors associated with low infant birth weight (see the help page of the data set by typing <code>?birthwt</code> in the console). </p>
+
+<p>We limit our attention to the following three variables:</p>
+
+<ul>
+<li>race: race of the mother, one of white, black or other</li>
+<li>smoke: smoking status during pregnancy</li>
+<li>ptl: number of previous premature labours</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>Empirical Distributions</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Displayed are bar plots for the univariate distributions of the three considered variables. 
+<img src="figure/f.svg" title="plot of chunk f" alt="plot of chunk f" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h2>Mosaic Plots to Display Contingency Tables</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">par(mfrow = c(1, 3))
+cortable1 &lt;- table(birthwt[, c(&quot;smoke&quot;, &quot;race&quot;)])
+mosaicplot(cortable1, cex.axis = 1.5, main = &quot;Smoke / Race&quot;)
+cortable2 &lt;- table(birthwt[, c(&quot;ptl&quot;, &quot;race&quot;)])
+mosaicplot(cortable2, cex.axis = 1.5, main = &quot;Ptl / Race&quot;)
+cortable3 &lt;- table(birthwt[, c(&quot;ptl&quot;, &quot;smoke&quot;)])
+mosaicplot(cortable3, cex.axis = 1.5, main = &quot;Ptl / Smoke&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-9.svg" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-12" style="background:;">
+  <hgroup>
+    <h2>Results: Smoke and Race</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="figure/unnamed-chunk-10.png" alt="plot of chunk unnamed-chunk-10"> </p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p>From the first plot, one can deduce that the proportion of people who smoked during pregnancy is much larger among white people than the two other groups. For people with black skin, the situation is not as clear-cut, with roughly 40% of the group smoking during pregnancy. However, mothers from the category comprising all other races smoke much less during pregnancy, with more than three quarters refraining from doing so. A Chi-squared test rejects the null hypothesis of independence (p-value: 0), affirming that this association is not a result of pure chance. </p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-13" style="background:;">
+  <hgroup>
+    <h2>Results: Smoke and # Premature Labours</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="figure/unnamed-chunk-11.png" alt="plot of chunk unnamed-chunk-11"> </p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p>While there does not appear to be any association between race and the number of premature labours, a look at the mosaic-plot on the left suggests that there is an association between smoking behaviour and premature labours. Mothers who smoke during pregnancy had more premature labours in the past, an observation which is in line with current research suggesting that smoking during pregnancy increased the risk of a premature birth. </p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-14" style="background:#EEE;">
+  <hgroup>
+    <h2>Question 3: <code>minn38</code> Data Set</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Finally, we look at the <code>minn38</code> data set, which contains characteristics about high school graduates of 1938 from Minnesota (type <code>?help(minn38)</code> in R). </p>
+
+<pre><code class="r">data(minn38)
+minn38.tab &lt;- xtabs(formula = f ~ phs + fol + sex, minn38)
+minn38.tab.M &lt;- xtabs(formula = f ~ phs + fol, minn38[minn38$sex == &quot;M&quot;, ])
+minn38.tab.F &lt;- xtabs(formula = f ~ phs + fol, minn38[minn38$sex == &quot;F&quot;, ])
+</code></pre>
+
+<p>Code for plots on the next pages:</p>
+
+<pre><code class="r">df1 &lt;- as.data.frame(minn38.tab.F)
+n1 &lt;- nPlot(Freq ~ phs, group = &quot;fol&quot;, type = &quot;multiBarChart&quot;, data = df1)
+# n1$set(width=800,height=500)
+df2 &lt;- as.data.frame(minn38.tab.M)
+n2 &lt;- nPlot(Freq ~ phs, group = &quot;fol&quot;, type = &quot;multiBarChart&quot;, data = df2)
+# n2$set(width=800,height=500)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-15" style="background:;">
+  <hgroup>
+    <h2>Female High School Graduates</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Interactive Bar Chart:</p>
+
+<div id='nchart1' class='rChart nvd3'></div>
+
+<script type='text/javascript'>
+ $(document).ready(function(){
+      drawnchart1()
+    });
+    function drawnchart1(){  
+      var opts = {
+ "dom": "nchart1",
+"width":    800,
+"height":    400,
+"x": "phs",
+"y": "Freq",
+"group": "fol",
+"type": "multiBarChart",
+"id": "nchart1" 
+},
+        data = [
+ {
+ "phs": "C",
+"fol": "F1",
+"Freq":    525 
+},
+{
+ "phs": "E",
+"fol": "F1",
+"Freq":     79 
+},
+{
+ "phs": "N",
+"fol": "F1",
+"Freq":     54 
+},
+{
+ "phs": "O",
+"fol": "F1",
+"Freq":    283 
+},
+{
+ "phs": "C",
+"fol": "F2",
+"Freq":    377 
+},
+{
+ "phs": "E",
+"fol": "F2",
+"Freq":    132 
+},
+{
+ "phs": "N",
+"fol": "F2",
+"Freq":    106 
+},
+{
+ "phs": "O",
+"fol": "F2",
+"Freq":    535 
+},
+{
+ "phs": "C",
+"fol": "F3",
+"Freq":    457 
+},
+{
+ "phs": "E",
+"fol": "F3",
+"Freq":    462 
+},
+{
+ "phs": "N",
+"fol": "F3",
+"Freq":    171 
+},
+{
+ "phs": "O",
+"fol": "F3",
+"Freq":   1677 
+},
+{
+ "phs": "C",
+"fol": "F4",
+"Freq":    415 
+},
+{
+ "phs": "E",
+"fol": "F4",
+"Freq":    154 
+},
+{
+ "phs": "N",
+"fol": "F4",
+"Freq":    122 
+},
+{
+ "phs": "O",
+"fol": "F4",
+"Freq":    715 
+},
+{
+ "phs": "C",
+"fol": "F5",
+"Freq":    119 
+},
+{
+ "phs": "E",
+"fol": "F5",
+"Freq":     68 
+},
+{
+ "phs": "N",
+"fol": "F5",
+"Freq":     36 
+},
+{
+ "phs": "O",
+"fol": "F5",
+"Freq":    348 
+},
+{
+ "phs": "C",
+"fol": "F6",
+"Freq":     70 
+},
+{
+ "phs": "E",
+"fol": "F6",
+"Freq":     56 
+},
+{
+ "phs": "N",
+"fol": "F6",
+"Freq":     24 
+},
+{
+ "phs": "O",
+"fol": "F6",
+"Freq":    409 
+},
+{
+ "phs": "C",
+"fol": "F7",
+"Freq":     64 
+},
+{
+ "phs": "E",
+"fol": "F7",
+"Freq":     40 
+},
+{
+ "phs": "N",
+"fol": "F7",
+"Freq":     24 
+},
+{
+ "phs": "O",
+"fol": "F7",
+"Freq":    339 
+} 
+]
+  
+      var data = d3.nest()
+        .key(function(d){
+          return opts.group === undefined ? 'main' : d[opts.group]
+        })
+        .entries(data)
+      
+      nv.addGraph(function() {
+        var chart = nv.models[opts.type]()
+          .x(function(d) { return d[opts.x] })
+          .y(function(d) { return d[opts.y] })
+          .width(opts.width)
+          .height(opts.height)
+         
+        
+          
+        
+
+        
+        
+        
+      
+       d3.select("#" + opts.id)
+        .append('svg')
+        .datum(data)
+        .transition().duration(500)
+        .call(chart);
+
+       nv.utils.windowResize(chart.update);
+       return chart;
+      });
+    };
+</script>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h2>Male High School Graduates</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Interactive Bar Chart:</p>
+
+<div id='nchart2' class='rChart nvd3'></div>
+
+<script type='text/javascript'>
+ $(document).ready(function(){
+      drawnchart2()
+    });
+    function drawnchart2(){  
+      var opts = {
+ "dom": "nchart2",
+"width":    800,
+"height":    400,
+"x": "phs",
+"y": "Freq",
+"group": "fol",
+"type": "multiBarChart",
+"id": "nchart2" 
+},
+        data = [
+ {
+ "phs": "C",
+"fol": "F1",
+"Freq":    559 
+},
+{
+ "phs": "E",
+"fol": "F1",
+"Freq":     41 
+},
+{
+ "phs": "N",
+"fol": "F1",
+"Freq":      9 
+},
+{
+ "phs": "O",
+"fol": "F1",
+"Freq":    276 
+},
+{
+ "phs": "C",
+"fol": "F2",
+"Freq":    407 
+},
+{
+ "phs": "E",
+"fol": "F2",
+"Freq":     68 
+},
+{
+ "phs": "N",
+"fol": "F2",
+"Freq":     28 
+},
+{
+ "phs": "O",
+"fol": "F2",
+"Freq":    531 
+},
+{
+ "phs": "C",
+"fol": "F3",
+"Freq":    290 
+},
+{
+ "phs": "E",
+"fol": "F3",
+"Freq":     91 
+},
+{
+ "phs": "N",
+"fol": "F3",
+"Freq":     40 
+},
+{
+ "phs": "O",
+"fol": "F3",
+"Freq":   1376 
+},
+{
+ "phs": "C",
+"fol": "F4",
+"Freq":    390 
+},
+{
+ "phs": "E",
+"fol": "F4",
+"Freq":     70 
+},
+{
+ "phs": "N",
+"fol": "F4",
+"Freq":     36 
+},
+{
+ "phs": "O",
+"fol": "F4",
+"Freq":    747 
+},
+{
+ "phs": "C",
+"fol": "F5",
+"Freq":    117 
+},
+{
+ "phs": "E",
+"fol": "F5",
+"Freq":     26 
+},
+{
+ "phs": "N",
+"fol": "F5",
+"Freq":      8 
+},
+{
+ "phs": "O",
+"fol": "F5",
+"Freq":    299 
+},
+{
+ "phs": "C",
+"fol": "F6",
+"Freq":     62 
+},
+{
+ "phs": "E",
+"fol": "F6",
+"Freq":     24 
+},
+{
+ "phs": "N",
+"fol": "F6",
+"Freq":     10 
+},
+{
+ "phs": "O",
+"fol": "F6",
+"Freq":    340 
+},
+{
+ "phs": "C",
+"fol": "F7",
+"Freq":     93 
+},
+{
+ "phs": "E",
+"fol": "F7",
+"Freq":     21 
+},
+{
+ "phs": "N",
+"fol": "F7",
+"Freq":     10 
+},
+{
+ "phs": "O",
+"fol": "F7",
+"Freq":    238 
+} 
+]
+  
+      var data = d3.nest()
+        .key(function(d){
+          return opts.group === undefined ? 'main' : d[opts.group]
+        })
+        .entries(data)
+      
+      nv.addGraph(function() {
+        var chart = nv.models[opts.type]()
+          .x(function(d) { return d[opts.x] })
+          .y(function(d) { return d[opts.y] })
+          .width(opts.width)
+          .height(opts.height)
+         
+        
+          
+        
+
+        
+        
+        
+      
+       d3.select("#" + opts.id)
+        .append('svg')
+        .datum(data)
+        .transition().duration(500)
+        .call(chart);
+
+       nv.utils.windowResize(chart.update);
+       return chart;
+      });
+    };
+</script>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-17" style="background:;">
+  <hgroup>
+    <h2>Results</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>One interesting and perhaps surprising result concerning the relationship between gender and post high school status is that women were more than twice as likely employed full-time than their male counterparts. Comparing the two plots from the previous pages, one can see that the bars differ indeed greatly in height: Roughly three times as many females compared to males were employed full-time (keep in mind that the two plots have a different scale on the y-scale).</p>
+
+<p>Second, college enrolment is highest for pupils from a household in which the father&#39;s occupational level is &quot;F1&quot;. Compared to all other categories of occupational level, this is the only group in which children who go on to enrol in college make up the largest group. To see this, it is advisable to deselect all other groups in the interactive plots and then make one-to-one comparisons between the individual groups.  </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-18" style="background:;">
+  <hgroup>
+    <h2>Non-interactive percentage Barplot using Lattice</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">minn38_prop_tab &lt;- prop.table(minn38.tab, margin = c(2, 3))
+barchart(Freq ~ fol | sex, groups = phs, data = as.data.frame(minn38_prop_tab), 
+    stack = TRUE, xlab = &quot;Post High School Status&quot;, ylab = &quot;Percentage&quot;, auto.key = list(space = &quot;right&quot;, 
+        columns = 1, title = &quot;Legend&quot;, cex.title = 1))
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-16.svg" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-19" style="background:;">
+  <hgroup>
+    <h2>Results 2</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>To render visible the distribution in the individual groups, the previous bar chart only displays the proportions inside the respective groups and not the total counts. This allows better insight into the composition of the groups. One last observation is that there seems to be a trend that with increasing occupational level the number of graduates enrolled in college diminishes, which is offset by an increase in graduates of the category &quot;other&quot;. The proportion of graduates belonging to the other categories (full-time employment and non-collegiate school) does not vary as much. One blatant exception is given by category &quot;F3&quot;, in which less than under this hypothesis expected 
+graduates are college students. </p>
+
+<hr>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Introduction'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Load Required Packages'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Question 1: <code>survey</code> Data Set'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Smoking Behaviour of Students'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='How often do the Students exercise?'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Interpretation'>
+         6
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=7 title='Interactive Highcharts.js Plot'>
+         7
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=8 title='Code for previous plot'>
+         8
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=9 title='Question 2: <code>birthwt</code> Data Set'>
+         9
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=10 title='Empirical Distributions'>
+         10
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=11 title='Mosaic Plots to Display Contingency Tables'>
+         11
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=12 title='Results: Smoke and Race'>
+         12
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=13 title='Results: Smoke and # Premature Labours'>
+         13
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=14 title='Question 3: <code>minn38</code> Data Set'>
+         14
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=15 title='Female High School Graduates'>
+         15
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=16 title='Male High School Graduates'>
+         16
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=17 title='Results'>
+         17
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=18 title='Non-interactive percentage Barplot using Lattice'>
+         18
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=19 title='Results 2'>
+         19
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  <script src="libraries/widgets/bootstrap/js/bootstrap.min.js"></script>
+<script src="libraries/widgets/bootstrap/js/bootbox.min.js"></script>
+
+  <script>  
+  $(function (){ 
+    $("#example").popover(); 
+    $("[rel='tooltip']").tooltip(); 
+  });  
+  </script>  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
